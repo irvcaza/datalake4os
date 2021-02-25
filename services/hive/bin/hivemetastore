@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 # init tables for hive metastore
 hive --service schemaTool -initSchema -dbType postgres --verbose | true

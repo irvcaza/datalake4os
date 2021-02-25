@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 # reference: https://github.com/big-data-europe/docker-hadoop/blob/master/base/entrypoint.sh
 
 function addProperty() {
