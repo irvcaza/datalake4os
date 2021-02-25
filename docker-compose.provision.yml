@@ -1,0 +1,28 @@
+# Archivo de docker-compose el cual aprovisiona de tablas para un ejemplo
+# para levantar los contenedores y aprovisionarlos se puede usar 
+# docker-compose -f docker-compose.yml -f docker-compose.provision.yml  up -d
+# para detener los contendores se utiliza 
+# docker-compose -f docker-compose.yml -f docker-compose.provision.yml  down
+# tambien se puede usar simplemente 
+# docker-compose down --remove-orphans
+
+
+version: "3"
+services:
+#   create `hive` and `default` buckets
+#   upload test data to minio
+  mc:
+    container_name: mc-provision
+    image: minio/mc:RELEASE.2020-04-25T00-43-23Z
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5 && \
+        mc config host add super-puper-config http://minio:9000 minio minio123 && \
+        mc mb super-puper-config/hive && \
+        mc mb super-puper-config/default && \
+        mc cp /tmp/iris.csv super-puper-config/hive/warehouse/iris/iris.csv || exit 1;"
+    volumes:
+      - "./services/minio/dummy-data/iris.csv:/tmp/iris.csv"
+    depends_on: 
+      - "minio"
+
