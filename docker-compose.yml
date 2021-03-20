@@ -6,6 +6,8 @@ version: "3"
 
 services:
 ######### Capa de data storage #########
+# Nota: Este servicio no tiene ningun volumen asociado por lo que los datos quese carguen se destruiran al destruir el contenedor
+#   , se recomienda crear un volumen
   minio:
     container_name: minio
     image: minio/minio:RELEASE.2020-04-10T03-34-42Z
@@ -27,21 +29,22 @@ services:
       POSTGRES_USER: hive
       POSTGRES_PASSWORD: hive
 
-  hive-server:
-    container_name: hive-server
-    image: hive:3.1.0
-    build:
-      context: services/hive
-      dockerfile: hive.dockerfile
-    env_file:
-      - ./services/hive/hive.env
-    environment:
-      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-      HIVE_SITE_CONF_hive_metastore_uris: "thrift://hive-metastore:9083"
-      # https://stackoverflow.com/a/53336873
-      HIVE_SITE_CONF_hive_server2_active_passive_ha_enable: "true"
-    depends_on: 
-      - hive-metastore
+#### Este contenedor, aunque es funcional no esta siendo utilizado por el momento 
+#  hive-server:
+#    container_name: hive-server
+#    image: hive:3.1.0
+#    build:
+#      context: services/hive
+#      dockerfile: hive.dockerfile
+#    env_file:
+#      - ./services/hive/hive.env
+#    environment:
+#      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+#      HIVE_SITE_CONF_hive_metastore_uris: "thrift://hive-metastore:9083"
+#      # https://stackoverflow.com/a/53336873
+#      HIVE_SITE_CONF_hive_server2_active_passive_ha_enable: "true"
+#    depends_on: 
+#      - hive-metastore
 
   hive-metastore:
     container_name: hive-metastore
@@ -67,6 +70,43 @@ services:
       - "./services/presto/conf/hive.properties:/lib/presto/default/etc/catalog/hive.properties"
       - "./services/presto/conf/query-example.sql:/tmp/query-example.sql"
   
+######## Provision inicial de datos: 
+## Crea los buckets necesarios para hive metastores por lo que crea la informacion y muere 
+# Una vez que se crearon los buquets no es necesaria de nuevo 
+
+#   create `hive` and `default` buckets
+#   upload test data to minio
+  mc:
+    container_name: mc-provision
+    image: minio/mc:RELEASE.2020-04-25T00-43-23Z
+    entrypoint: >
+      /bin/sh -c "
+      sleep 5 && \
+        mc config host add super-puper-config http://minio:9000 minio minio123 && \
+        mc mb super-puper-config/hive && \
+        mc mb super-puper-config/default && \
+        mc cp /tmp/iris.csv super-puper-config/hive/warehouse/iris/iris.csv || exit 1;"
+    volumes:
+      - "./services/minio/dummy-data/iris.csv:/tmp/iris.csv"
+    depends_on: 
+      - "minio"
+
+##################### Python para interactuar con los servicios 
+
+## Archivo docker compose para lanzar contenedor de python con Jupyter Notebook
+
+# Version docker compose.
+
+  jupyter:
+    build: ./services/python-jupyter # Utilizar imagen definida en Dockerfile con librerias extra definidas por el usuario 
+    ports:
+      - "8888:8888" # El puerto 8888 es por defecto en jupyter, se peude cambiar por otro para evitar colisiones 
+    volumes:
+      - ./services/python-jupyter/scripts:/home/jovyan/scripts # Monta la carpecta de scripts y notebooks
+      - ./services/python-jupyter/data:/home/jovyan/data #  Monta la carpecta de datos 
+    command: "start.sh jupyter lab --LabApp.token='password'" # Comando con el que arranca el notebook. Permite añadir variables a la ejecucion del notebook. '--LabApp.token' establece el token inicial para acceder al notebook
+
+#### Los siguientes contenedores seran implementados en furutas iteraciones 
 #   atlas:  
 #     image: wbaa/rokku-dev-apache-atlas:0.1.5
 #       container_name: atlas
