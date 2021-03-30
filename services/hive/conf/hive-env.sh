@@ -52,3 +52,4 @@ export HADOOP_HEAPSIZE=1024
 
 # Folder containing extra ibraries required for hive compilation/execution can be controlled by:
 export HIVE_AUX_JARS_PATH=/opt/hive/extlib
+
