@@ -24,7 +24,19 @@ You can also acces to web interfaces for
 docker-compose down
 ```
 
-**Note:** If you are runnig it on windows and you receive an error /bin/bash not found on hive-metastore. You have to modify line endings to linux style on the files of services\hive\bin
+**Note:** If you are runnig it on windows and you receive an error ': No such file or directory' on hive-metastore. You have to modify line endings to linux style on the files of services/hive/bin
+those files are 
+
+- services/hive/bin/entrypoint.sh
+- services/hive/bin/hivemetastore
+- services/hive/bin/hiveserver
+- services/hive/conf/hive-env.sh
+
+One ~paritial~ way to avoid this is using.
+
+```
+git config --global core.autocrlf false
+```
 
 ## Inspired
 This work is inspired by the repository: https://github.com/zhenik-poc/big-data-stack-practice
