@@ -61,15 +61,14 @@ services:
     depends_on: 
       - database
 
-  presto:
-    container_name: presto
-    image: prestosql/presto:333
+  trino:
+    container_name: trino
+    image: trinodb/trino:354
     ports:
       - 8080:8080
     volumes:
-      - "./services/presto/conf/config.properties:/lib/presto/default/etc/config.properties"
-      - "./services/presto/conf/hive.properties:/lib/presto/default/etc/catalog/hive.properties"
-      - "./services/presto/conf/query-example.sql:/tmp/query-example.sql"
+      - "./services/trino/config.properties:/etc/trino/config.properties"
+      - "./services/trino/hive.properties:/etc/trino/catalog/hive.properties"
   
 ######## Provision inicial de datos: 
 ## Crea los buckets necesarios para hive metastores por lo que crea la informacion y muere 

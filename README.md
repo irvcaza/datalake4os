@@ -17,7 +17,7 @@ Open the notebook in the directory 'scripts', follow the instructions and play a
 
 You can also acces to web interfaces for
 - Minio at port :9000 . User minio password minio123
-- Presto at port :8080 . Just write aniting and it will let you pass 
+- Trino at port :8080 . Just write aniting and it will let you pass 
 
 *to stop*
 ```bash
