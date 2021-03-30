@@ -29,22 +29,23 @@ services:
       POSTGRES_USER: hive
       POSTGRES_PASSWORD: hive
 
-#### Este contenedor, aunque es funcional no esta siendo utilizado por el momento 
-#  hive-server:
-#    container_name: hive-server
-#    image: hive:3.1.0
-#    build:
-#      context: services/hive
-#      dockerfile: hive.dockerfile
-#    env_file:
-#      - ./services/hive/hive.env
-#    environment:
-#      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
-#      HIVE_SITE_CONF_hive_metastore_uris: "thrift://hive-metastore:9083"
-#      # https://stackoverflow.com/a/53336873
-#      HIVE_SITE_CONF_hive_server2_active_passive_ha_enable: "true"
-#    depends_on: 
-#      - hive-metastore
+  hive-server:
+    container_name: hive-server
+    ports: 
+      - 10002:10002
+    image: hive:3.1.0
+    build:
+      context: services/hive
+      dockerfile: hive.dockerfile
+    env_file:
+      - ./services/hive/hive.env
+    environment:
+      HIVE_CORE_CONF_javax_jdo_option_ConnectionURL: "jdbc:postgresql://hive-metastore/metastore"
+      HIVE_SITE_CONF_hive_metastore_uris: "thrift://hive-metastore:9083"
+      # https://stackoverflow.com/a/53336873
+      HIVE_SITE_CONF_hive_server2_active_passive_ha_enable: "true"
+    depends_on: 
+      - hive-metastore
 
   hive-metastore:
     container_name: hive-metastore
@@ -167,7 +168,7 @@ services:
 #       - METADATASERVICE_BASE=http://amundsenmetadata:5002
 #       - SEARCHSERVICE_BASE=http://amundsensearch:5001
 
-# networks:
-#   default:
-#     external:
-#       name: datalake4os-net
+networks:
+  default:
+    driver: bridge
+    name: datalake4os-net
