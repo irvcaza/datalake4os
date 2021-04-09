@@ -15,10 +15,13 @@ FROM jupyter/scipy-notebook:703d8b2dcb88
 # utilizar todos los paquetes de scipy-notebook y soporte para Apache Spark
 #FROM jupyter/pyspark-notebook:5cb007f03275" 
 
+# Copia certificado 
+COPY --chown=${NB_UID}:${NB_GID} Cisco_Umbrella_Root_CA.cer /tmp/
+
 # Copia el archivo de requerimientos al contenedor 
 COPY --chown=${NB_UID}:${NB_GID} requirements.txt /tmp/
 # Instal los requerimientos en le archivo 
-RUN pip install --requirement /tmp/requirements.txt && \
+RUN pip install --cert /tmp/Cisco_Umbrella_Root_CA.cer  --trusted-host pypi.org --requirement /tmp/requirements.txt && \
     fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 # elimina directorio creado que no es necesario
