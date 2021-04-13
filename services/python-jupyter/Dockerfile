@@ -21,8 +21,10 @@ COPY --chown=${NB_UID}:${NB_GID} Cisco_Umbrella_Root_CA.cer /tmp/
 # Copia el archivo de requerimientos al contenedor 
 COPY --chown=${NB_UID}:${NB_GID} requirements.txt /tmp/
 # Instal los requerimientos en le archivo 
-RUN pip install --cert /tmp/Cisco_Umbrella_Root_CA.cer  --trusted-host pypi.org --requirement /tmp/requirements.txt && \
-    fix-permissions $CONDA_DIR && \
+RUN pip install --requirement /tmp/requirements.txt || \
+    pip install --cert /tmp/Cisco_Umbrella_Root_CA.cer  --trusted-host pypi.org --requirement /tmp/requirements.txt 
+    
+RUN fix-permissions $CONDA_DIR && \
     fix-permissions /home/$NB_USER
 # elimina directorio creado que no es necesario
 RUN rm -r ~/work
